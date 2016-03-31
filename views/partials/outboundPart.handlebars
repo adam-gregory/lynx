@@ -1,12 +1,34 @@
-<div class = "outbound">
+<div class = "outbound col-sm-9">
 	{{#each partials.outboundContext.trucks}}
-		<div class = "truck">
-			<h3>Truck: {{trucknum}}</h3>
-			<ul>
-				<li>ItemID: {{itemid}} </li>
-				<li>Qty: {{qty}} </li>
-				<li>Address: {{address}} </li>
-			</ul>
+		<div class = "truck panel panel-default">
+			<div class="panel-heading">
+				<div class="list-group">
+					<div class="btn-group btn-group-xs" style="float:right">
+						<button class="btn" role="group">Edit</button>	
+						<button class="btn" role="group">Delete</button>
+					</div>
+					<h4 class="list-group-item-heading">Truck: {{trucknum}}</h4>
+					<p class="list-group-item-heading">Address: 2842 Lawndale Ave. Cincinnati Ohio 45212</p> 
+				</div>
+			</div>
+			<table class = "table"> 
+				<tr>
+					<th>Item ID</th>
+					<th>Qty</th>
+					<th></th>
+				</tr>
+				<tr>		
+					<td> {{itemid}} </td>
+					<td> {{qty}}</td>
+					<td> 
+						<div class="btn-group btn-group-xs" role="group"> 
+							<button type="button" class="btn btn-default">Edit</button>
+							<button type="button" class="btn btn-default">Print BOL</button>
+							<button type="button" class="btn btn-default">Delete</button>
+						</div>
+					</td>
+				</tr>
+			</table>
 		</div>
 	{{/each}}
 </div>

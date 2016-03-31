@@ -302,9 +302,9 @@ nav .caret{
 /* = Buttons
 -------------------------------------------------------------- */
 
-.btn{
+/*.btn{
 	margin: 0 5px 5px 0;
-}
+}*/
 .btn.pull-right{
 	margin: 0 0 5px 5px;
 }

@@ -7,6 +7,8 @@ var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
 var data = require('./routes/data');
+var outbound = require('./routes/outbound');
+
 //<alg>
 var sql = require('mssql');
 var handlebars = require('express-handlebars').create({defaultLayout: 'main'});
@@ -28,25 +30,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/data', data);
+app.use('/outbound', outbound);
 
-
-/*//ALG AUTO ROUTING 
-var autoViews={};
-var fs = require('fs');
-
-app.use(function(req, res, next){
-	var path = req.path.toLowerCase();
-	//check cache
-	if(autViews[path]) return res.render(autViews[path]);
-	//if not
-	if(fs.existsSync(__dirname + '/views' + path + '.handlebars')){
-		autViews[path] = path.replace(/^\//, '');
-		return res.render(autoViews[path]);
-	}
-	next();
-});
-//</alg> autorouting 
-*/
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
