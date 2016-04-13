@@ -1,35 +1,28 @@
 var express = require('express');
 var router = express.Router();
-
-
-function getOutboundDocs()
-{
-	
-	return{
-		trucks:[
-			{
-				trucknum: '42',
-				itemid: 'XYZ',
-				qty: '10000',
-				address: '1234 Front St. 45555'
-			},{
-				trucknum: '3.14159',
-				itemid: 'ABC',
-				qty: '14000',
-				address: '10.109.10.214'
-			},
-
-		]
-	};		
-}
-
+var util = require('util');
+var $ = require('jquery');
 
 router.get('/', function(req,res,next){
+	console.log('serving /');
 	if(!res.locals.partials){
 		res.locals.partials = {};
 	}
-	res.locals.partials.outboundContext = getOutboundDocs();
-	res.render('outbound',null);
+	jsonArray=[];
+	jsonData = {};
+	sql = req.sql;
+	sql.connect(req.LynxDBconfig).then(function(){
+	        new sql.Request().query('select * from view_Outbound').then(function(recordset){
+			console.dir(recordset);
+			jsonArray['trucks'] = recordset;
+			//res.locals.partials.outboundContext = getOutboundDocs();
+			res.locals.partials.outboundContext = jsonArray;
+			res.render('outbound',{helpers:{foo: function(){return jsonArray;}}});
+		}).catch(function(err){
+			console.log('Error while running sql in outbound : ' + err);
+		});
+	});
 });
+
 
 module.exports = router;

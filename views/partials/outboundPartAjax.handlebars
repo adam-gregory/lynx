@@ -1,0 +1,111 @@
+
+{{#section 'head'}}
+	<script type="application/javascript">
+		$.getJSON("http://10.109.10.232:3000/api/outboundTrucks",function(data){
+			ko.applyBindings(new TruckModel(data));	
+		});
+		function Truck(TruckWHID,FromWHID,DriverID,Description,Name,Number,Street,Line3,City,State,Zip)
+		{
+		this.TruckWHID = ko.observable(TruckWHID);
+		this.FromWHID = ko.observable(FromWHID);
+		this.DriverID = ko.observable(DriverID);
+		this.Description = ko.observable(Description);
+		this.Name = ko.observable(Name);
+		this.Number = ko.observable(Number);
+		this.Street = ko.observable(Street);
+		this.Line3 = ko.observable(Line3);
+		this.City = ko.observable(City);
+		this.State = ko.observable(State);
+		this.Zip = ko.observable(Zip);
+
+		}		 
+
+
+		var TruckModel = function(trucks){
+			var self = this;
+			self.trucks = ko.observableArray(ko.utils.arrayMap(trucks, function(truck){
+			return new Truck(truck.TruckWHID, truck.FromWHID, truck.DriverID, truck.Description, truck.Name, truck.Number, truck.Street, truck.Line3, truck.City, truck.State, truck.Zip);
+		}));
+			self.addTruck = function(){
+				self.trucks.push({
+					TruckWHID: "",
+					FromWHID:"" ,
+					DriverID:"",
+					Description:"" ,
+					Name:"" ,
+					Number:"" ,
+					Street:"" ,
+					Line3:"" ,
+					City:"" ,
+					State:"" ,
+					Zip:"" 
+
+			})};
+			self.removeTruck= function(){
+				self.trucks.remove(truck);
+			};
+		};
+	</script>
+{{/section}}
+<h2>Trucks:</h2>
+<div id='TruckList'>
+	<div data-bind="foreach: trucks">
+		<div class="panel panel-default viewTruck">
+			<p>WH:<span data-bind='text: FromWHID'>A</span></p>
+		</div>
+	</div>
+	<div data-bind="foreach: trucks"> 
+		<div class="panel panel-default editTruck" >
+			<div class="panel-body">
+				<p>
+					Warehouse ID:
+					<input data-bind="textInput: FromWHID"/>
+				</p>
+				<p>
+					Truck warehouse id:
+					<input data-bind='value:TruckWHID'/>
+				<p>
+					Driver ID:
+					<input data-bind='value:DriverID'/>
+				</p>
+				<p>
+					Descripion:
+					<input data-bind='value:Description'/>
+				</p>
+				<p>
+					Name:
+					<input data-bind='value:Name'/>
+				</p>
+				<p>
+					Number:
+					<input data-bind='value:Number'/>
+				</p>
+				<p>
+					Street:
+					<input data-bind='value:Street'/>
+				</p>
+				<p>
+					Other:
+					<input data-bind='value:Line3'/>
+				</p>
+				<p>
+					City:
+					<input data-bind='value:City'/>
+				</p>
+				<p>
+					State:
+					<input data-bind='value:State'/>
+				</p>
+				<p>
+					Zip:
+					<input data-bind='value:Zip'/>		
+				</p>
+			</div>
+		</div>	
+	</div>
+</div>
+<p>
+	<button data-bind='click: addTruck'>Add a truck</button>
+	<button data-bind='click: save, enable: trucks().length > 0'> Save to JSON</button>
+</p>
+<textarea data-bind='value: lastSavedJson' rows='5' cols='60' disabled='disabled'> </textarea>

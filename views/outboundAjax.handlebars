@@ -1,0 +1,187 @@
+<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js'></script>
+{{#section 'head'}}
+	<script type="text/javascript">
+		var truckModel;
+		function Truck(outboundid,TruckWHID,FromWHID,DriverID,Description,Name,Number,Street,Line3,City,State,Zip)
+		{
+			this.outboundid = outboundid;//used to do updates PK
+			this.TruckWHID = ko.observable(TruckWHID);
+			this.FromWHID = ko.observable(FromWHID);
+			this.DriverID = ko.observable(DriverID);
+			this.Description = ko.observable(Description);
+			this.Name = ko.observable(Name);
+			this.Number = ko.observable(Number);
+			this.Street = ko.observable(Street);
+			this.Line3 = ko.observable(Line3);
+			this.City = ko.observable(City);
+			this.State = ko.observable(State);
+			this.Zip = ko.observable(Zip);
+
+		};
+		
+		var TruckModel = function(trucks){
+			var self = this;
+			self.trucks = ko.observableArray(
+				ko.utils.arrayMap(
+					trucks, function(truck){
+						return new Truck
+							(
+							truck.outboundid,
+							truck.TruckWHID, 
+							truck.FromWHID, 
+							truck.DriverID, 
+							truck.Description, 
+							truck.Name , 
+							truck.Number , 
+							truck.Street, 
+							truck.Line3, 
+							truck.City, 
+							truck.State, 
+							truck.Zip);
+					}	
+				)
+			);
+			
+			
+		};
+	var getDataFromServer = function(){
+			$.getJSON("http://10.109.10.232:3000/api/outboundTrucks",function(data){
+				truckModel.trucks(data);	
+			});
+	};
+	
+
+	$(document).ready(function(){
+		$('.btnTruckEdit').click(function(){
+				$(".editTruck").show("blind",{} ,1000,null);//null should be replaced with a callback	
+			});
+		$('.btnTruckSave').click(function(){
+				$(".editTruck").hide("blind",{}, 1000,null);
+				
+			});
+		$('#refreshdata').click(function(){
+			getDataFromServer();
+			
+		});
+		$('#frmOutboundTruck').submit(function(event){
+		 	var data = {}
+			var Form = this;	
+			$.each(this.elements, function(i, v){
+				var input = $(v);
+				data[input.attr("name")] = input.val();
+				delete data["undefined"];
+		    	});
+
+			$.ajax({
+				contentType:'application/json',
+				type	:	'POST',
+				url	:	'../api/outbound',
+				data	:	JSON.stringify(data),
+				processData: false
+			})
+			.done(function(data){
+				console.log(data);
+				getDataFromServer();
+			});
+			event.preventDefault();
+		});
+		//apply bindings to a new, empty, TruckModel
+		truckModel = new TruckModel();
+		ko.applyBindings(truckModel);
+		getDataFromServer();
+
+	});
+	</script>
+{{/section}}
+
+<div class = "outbound col-sm-9">
+	<div class="panel panel-default editTruck" style='display:none'>
+		<div class="panel-body">
+			<form id='frmOutboundTruck'>
+				<p>
+					Warehouse ID:
+					<input name='FromWHID' id='FromWHID'/>
+				</p>
+				<p>
+					Truck warehouse id:
+					<input id='TruckWHID' name='TruckWHID'/>
+				<p>
+					Descripion:
+					<input id='Description' name='Description'/>
+				</p>
+				<p>
+					Driver ID:
+					<input name='DriverID', id='DriverID'/>
+				</p>
+							<button type="submit" class="btnTruckSave">Save</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="panel panel-default" style="display:none">
+	<div class="panel-body" >
+		<p>
+			Name:
+			<input id='Name'/>
+		</p>
+		<p>
+			Number:
+			<input id='Number'/>
+		</p>
+		<p>
+			Street:
+			<input id='Street'/>
+		</p>
+		<p>
+			Other:
+			<input id='Line3'/>
+		</p>
+		<p>
+			City:
+			<input id='City'/>
+		</p>
+		<p>
+			State:
+			<input id='State'/>
+		</p>
+		<p>
+			Zip:
+			<input id='Zip'/>		
+		</p>
+	</div>
+</div>
+
+<button class="btnTruckEdit">Add New Truck</button>
+
+<div class = "outbound col-sm-9">
+	<h2>Trucks:</h2>
+		<div id='TruckList' data-bind="foreach: trucks">
+			<div class = "truck panel panel-default">
+				<div class = "panel-heading">
+					<div class="btn-group btn-group-xs" style="float:right">
+						<button class="btn btnTruckEdit" role="group">Edit</button>
+						<button class="btn" role="group">Delete</button>
+					</div>
+					<h4 class="list-group-item-heading">
+						Truck:
+						<span data-bind="text: TruckWHID"></span> 
+						<span data-bind='text: FromWHID'></span>
+					</h4>
+					<h5>
+						<span data-bind='text: Description'></span>
+					</h5>
+					<div class="list-group-item-heading" style="padding-left:10px" data-bind="if: Name">
+						Address:
+						<p style="padding-left:20px">
+							<span data-bind='text: Name'></span> 
+							<br><span data-bind='text: Number'></span><span data-bind='text: Street'></span>
+							<br><span data-bind='text: Line3'></span>
+							<br> <span data-bind='text: City'></span> <span data-bind='text: State'></span>, <span data-bind='text: Zip'></span>
+						</p>
+					</div>
+					
+			</div>
+		</div>
+	</div>
+</div>
