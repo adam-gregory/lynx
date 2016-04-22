@@ -10,7 +10,6 @@ var LynxDBconfig = require('./env/LynxDB.config.json')
 var AXDBconfig = require('./env/AXDB.config.json')
 
 var routes = require('./routes/index');
-var data = require('./routes/data');
 var outbound = require('./routes/outbound');
 var outboundAjax = require('./routes/outboundAjax');
 var api = require('./routes/api');
@@ -32,7 +31,7 @@ var handlebars = require('express-handlebars').create({
 });
 //</alg>
 var app = express();
-
+app.set('port',80);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.engine('handlebars', handlebars.engine);
@@ -59,7 +58,6 @@ app.use(function(req,res,next){
 
 
 app.use('/', routes);
-app.use('/data', data);
 app.use('/outbound', outbound);
 app.use('/outboundAjax', outboundAjax);
 app.use('/api', api);

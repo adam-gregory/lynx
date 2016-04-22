@@ -2,15 +2,13 @@ var express = require('express');
 var router = express.Router();
 var util = require('util');
 var jsonArray = [];
-
-//Returns all outbound trucks with addresses
+var sql = require('mssql');
+//Returns all outbound trucks 
 router.get('/outboundTrucks', function(req,res,next){
 	res.set('Content-Type', 'text/json');
 	sql = req.sql;
-	sql.connect(req.LynxDBconfig).then(function(
-
-
-){
+		sql.connect(req.LynxDBconfig).then(function(
+	){
 	        new sql.Request().query('select * from view_Outbound').then(function(recordset){
 			res.send(recordset);
 		}).catch(function(err){
@@ -19,23 +17,38 @@ router.get('/outboundTrucks', function(req,res,next){
 	});
 });
 
-
+router.get('/outboundTruck/:outbound_id', function(req,res,next){
+	res.set('Content-Type', 'text/json');
+	var outboundID = req.params.outbound_id;
+	var c = new sql.Connection(req.LynxDBconfig);
+	c.connect().then(function(){
+		new sql.Request(c)
+		.input('outboundid', sql.BigInt, outboundID)
+		.execute('sp_getOutboundTruck')
+		.then(function(err, recordset, returnValue, something){
+				res.send(err[0]);
+		})
+	});
+	sql.close();
+});
 //Returns all outboundLines for a given outboundid
 router.get('/outboundLines/:outbound_id', function(req, res, next){
 	res.set('Content-Type', 'text/json');
-	sql = req.sql;
+	var c = new sql.Connection(req.LynxDBconfig);	
 	var outboundID = req.params.outbound_id;
-	sql.connect(req.LynxDBconfig).then(function(){
-		try{
-			new sql.Request()
-			.input('outboundid', sql.BigInt, outboundID)
-			.execute('sp_getOutboundLines', function(err, recordset, returnValue, affected){
+	c.connect().then(function(){
+		new sql.Request(c)
+		.input('outboundid', sql.BigInt, outboundID)
+		.execute('sp_getOutboundLines')
+		.then(function(err, recordset, returnValue, affected){
+			if(err)
+				res.send(err[0]);
+			else
 				res.send(recordset[0]);		//should only get one recordset back from this sproc	
-			});
-		}catch(err){
-			console.log(err);
-		}		
+
+		});
 	});
+	sql.close();
 });
 
 
@@ -89,21 +102,22 @@ router.post('/outbound',function(req, res, next){
 
 //creates a new outboundline
 router.post('/outboundLine', function(req,res,next){
-	var outboundid = req.body.outboundid;
 	var itemid = req.body.itemid;
 	var itemdesc = req.body.itemdesc;
 	var qty = req.body.qty;
+	var outboundid = req.body.outboundid;
 	sql = req.sql;
-	sql.connect(req.LynxDBconfig).then(function(){
+	console.log(itemid, itemdesc, qty, outboundid);
+	sql.connect(req.LynxDBconfig).then(function(){	
 		new sql.Request()
-			.input('outboundid', sql.BigInt,outboundid)
-			.input('itemid', sql.NVarChar(20),itemid)
-			.input('itemdesc', sql.NVarChar(1000), itemdesc)
-			.input('qty', sql.Real, qty)
-			.execute('sp_createOutboundLine', function(err, recordset, returnValue, affected){
-				res.json({message:'Created Outbound Line Record with RecID:', recordset});
-			});
-		
+		.input('itemid', sql.NVarChar(20),itemid)
+		.input('itemdesc', sql.NVarChar(1000), itemdesc)
+		.input('qty', sql.Real, qty)
+		.input('outboundid', sql.BigInt, outboundid)
+		.execute('sp_createOutboundLine', function(err, recordset, returnValue, affected){
+			console.log('created a new record in outboundline',err);
+			res.json({message:'Created Outbound Line Record with RecID:', err});
+		});
 	});
 
 });
@@ -140,3 +154,4 @@ router.post('/address', function(req,res,next){
 });
 
 module.exports = router;
+

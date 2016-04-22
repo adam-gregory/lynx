@@ -1,0 +1,431 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js'></script>
+<script type='text/javascript' src='/javascripts/knockout-3.4.0.js'></script>
+<script type='text/javascript'>
+	var truckModel;
+	function Truck(outboundid, TruckWHID, FromWHID, DriverID, Description, Name, Number, Street, Line3, City, State, Zip)
+	{
+	
+		this.outboundid = outboundid;//used to do updates PK
+		this.TruckWHID = ko.observable(TruckWHID);
+		this.FromWHID = ko.observable(FromWHID);
+		this.DriverID = ko.observable(DriverID);
+		this.Description = ko.observable(Description);
+		this.Name = ko.observable(Name);
+		this.Number = ko.observable(Number);
+		this.Street = ko.observable(Street);
+		this.Line3 = ko.observable(Line3);
+		this.City = ko.observable(City);
+		this.State = ko.observable(State);
+		this.Zip = ko.observable(Zip);
+
+	};
+
+	function Item(outboundlineid, itemid, qty, itemDesc)
+	{	
+		this.OutboundLineID = ko.observable(OutboundLineID);
+		this.Itemid = ko.observable(Itemid);
+		this.Qty = ko.observable(Qty);
+		this.ItemDesc = ko.observable(ItemDesc);
+		//This needs to be update all the way from the database down
+		this.netWeight = Qty;
+		this.netWeightUnit = 'lbs';
+		this.grossWeight = qty;
+		this.grossWeightUnit = 'lbs';
+		this.hm = '';
+	}
+	var TruckModel = function(items)
+	{
+		var self = this;
+		self.outboundid =ko.observable('');//used to do updates PK
+		self.TruckWHID = ko.observable();
+		self.FromWHID = ko.observable();
+		self.DriverID = ko.observable();
+		self.Description = ko.observable();
+		self.Name = ko.observable();
+		self.Number = ko.observable();
+		self.Street = ko.observable();
+		self.Line3 = ko.observable();
+		self.City = ko.observable();
+		self.State = ko.observable();
+		self.Zip = ko.observable();
+		self.date = new Date();
+		self.numberAndStreet = self.Number + ' ' + self.Street;
+		self.cityStateZip = self.City + ', ' + self.State + ' ' + self.Zip;
+		
+		self.items = ko.observableArray(
+			ko.utils.arrayMap(
+				items, function(item){		
+					return new Item(		
+						item.OutboundLineID, 
+						item.ItemID, 
+						item.Qty, 
+						item.ItemDesc);
+				}
+			)
+		);
+
+	};
+
+	var getDataFromServer = function(){
+		//one call for the truck header and address
+		$.getJSON('http://10.109.10.232:3000/api/outboundTruck/{{outboundID}}',function(truck){
+			p = truck[0];
+			truckModel.outboundid(p.OutboundID);
+			truckModel.TruckWHID(p.TruckWHID);
+			truckModel.FromWHID(p.FromWHID);
+			truckModel.DriverID(p.DriverID);
+			truckModel.Description(	p.Description); 
+			truckModel.Name(p.Name);
+			truckModel.Number(p.Number);
+			truckModel.Street(p.Street);
+			truckModel.Line3(p.Line3);
+			truckModel.City(p.City);
+			truckModel.State(p.State);
+			truckModel.Zip(p.zip);
+		});
+		//one call for the items
+		$.getJSON('http://10.109.10.232:3000/api/outboundLines/{{outboundID}}',function(items){
+			truckModel.items(items);
+		});
+		
+	};
+	$(document).ready(function(){
+		//apply binding to new empty Truck model
+		truckModel = new TruckModel();
+		ko.applyBindings(truckModel);
+		getDataFromServer();
+
+
+	});
+</script>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=8">
+<title>Dubois Bill of Lading</title>
+<!-- #include virtual="/convert-pdf-to-html/includes/pdf-to-word-head-tag.htm" -->
+<style type="text/css">
+
+body {margin-top: 0px;margin-left: 0px;}
+
+#page_1 {position:relative; overflow: hidden;margin: 0px 0px 31px 0px;padding: 0px;border: none;width: 816px;}
+#page_1 #id_1 {border:none;margin: 0px 0px 0px 23px;padding: 0px;border:none;width: 793px;overflow: hidden;}
+#page_1 #id_2 {border:none;margin: 0px 0px 0px 338px;padding: 0px;border:none;width: 478px;overflow: hidden;}
+#page_1 #id_2 #id_2_1 {float:left;border:none;margin: 0px 0px 0px 0px;padding: 0px;border:none;width: 298px;overflow: hidden;}
+#page_1 #id_2 #id_2_2 {float:left;border:none;margin: 0px 0px 0px 0px;padding: 0px;border:none;width: 180px;overflow: hidden;}
+#page_1 #id_3 {border:none;margin: 0px 0px 0px 0px;padding: 0px;border:none;width: 776px;overflow: hidden;}
+#page_1 #id_4 {border:none;margin: 20px 0px 0px 23px;padding: 0px;border:none;width: 793px;overflow: hidden;}
+#page_1 #id_4 #id_4_1 {float:left;border:none;margin: 6px 0px 0px 0px;padding: 0px;border:none;width: 373px;overflow: hidden;}
+#page_1 #id_4 #id_4_2 {float:left;border:none;margin: 0px 0px 0px 0px;padding: 0px;border:none;width: 420px;overflow: hidden;}
+#page_1 #id_5 {border:none;margin: 22px 0px 0px 16px;padding: 0px;border:none;width: 775px;overflow: hidden;}
+#page_1 #id_6 {border:none;margin: 187px 0px 0px 18px;padding: 0px;border:none;width: 798px;overflow: hidden;}
+#page_1 #id_6 #id_6_1 {float:left;border:none;margin: 0px 0px 0px 0px;padding: 0px;border:none;width: 334px;overflow: hidden;}
+#page_1 #id_6 #id_6_2 {float:left;border:none;margin: 7px 0px 0px 45px;padding: 0px;border:none;width: 419px;overflow: hidden;}
+#page_1 #id_7 {border:none;margin: 3px 0px 0px 17px;padding: 0px;border:none;width: 799px;overflow: hidden;}
+#page_1 #id_8 {border:none;margin: 19px 0px 0px 18px;padding: 0px;border:none;width: 798px;overflow: hidden;}
+
+#page_1 #dimg1 {position:absolute;top:29px;left:17px;z-index:-1;width:779px;height:885px;}
+#page_1 #dimg1 #img1 {width:779px;height:885px;}
+
+#page_1 #inl_img1 {position:relative;width:160px;height:7px;}
+
+
+
+.ft0{font: 35px 'Arial';line-height: 39px;}
+.ft1{font: bold 19px 'Helvetica';line-height: 22px;}
+.ft2{font: bold 12px 'Helvetica';line-height: 15px;}
+.ft3{font: 12px 'Helvetica';line-height: 15px;}
+.ft4{font: 12px 'Helvetica';line-height: 11px;}
+.ft5{font: bold 11px 'Helvetica';line-height: 11px;}
+.ft6{font: 1px 'Helvetica';line-height: 1px;}
+.ft7{font: 13px 'Helvetica';line-height: 15px;}
+.ft8{font: bold 11px 'Helvetica';line-height: 14px;}
+.ft9{font: 13px 'Helvetica';line-height: 16px;}
+.ft10{font: 12px 'Helvetica';line-height: 13px;}
+.ft11{font: 1px 'Helvetica';line-height: 13px;}
+.ft12{font: bold 11px 'Helvetica';line-height: 13px;}
+.ft13{font: 12px 'Helvetica';line-height: 12px;}
+.ft14{font: bold 11px 'Helvetica';line-height: 12px;}
+.ft15{font: bold 11px 'Helvetica';line-height: 10px;}
+.ft16{font: 19px 'Helvetica';line-height: 18px;}
+.ft17{font: 19px 'Helvetica';line-height: 22px;}
+.ft18{font: 11px 'Arial';line-height: 14px;}
+.ft19{font: 11px 'Helvetica';line-height: 12px;}
+.ft20{font: 11px 'Helvetica';line-height: 14px;}
+.ft21{font: 12px 'Helvetica';line-height: 14px;}
+.ft22{font: 1px 'Helvetica';line-height: 9px;}
+.ft23{font: 1px 'Helvetica';line-height: 5px;}
+.ft24{font: 1px 'Helvetica';line-height: 6px;}
+.ft25{font: bold 13px 'Helvetica';line-height: 16px;}
+.ft26{font: 1px 'Helvetica';line-height: 14px;}
+.ft27{font: 8px 'Helvetica';line-height: 10px;}
+.ft28{font: 8px 'Helvetica';line-height: 9px;}
+.ft29{font: 11px 'Helvetica';line-height: 13px;}
+.ft30{font: 1px 'Helvetica';line-height: 3px;}
+.ft31{font: 11px 'Helvetica';line-height: 11px;}
+.ft32{font: 1px 'Helvetica';line-height: 4px;}
+.ft33{font: 1px 'Helvetica';line-height: 12px;}
+
+.p0{text-align: left;margin-top: 0px;margin-bottom: 0px;}
+.p1{text-align: right;margin-top: 0px;margin-bottom: 0px;}
+.p2{text-align: left;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p3{text-align: left;padding-left: 83px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p4{text-align: left;padding-right: 245px;margin-top: 0px;margin-bottom: 0px;}
+.p5{text-align: left;padding-left: 1px;margin-top: 9px;margin-bottom: 0px;}
+.p6{text-align: left;padding-left: 1px;margin-top: 0px;margin-bottom: 0px;}
+.p7{text-align: left;padding-left: 3px;margin-top: 0px;margin-bottom: 0px;}
+.p8{text-align: left;padding-right: 149px;margin-top: 3px;margin-bottom: 0px;}
+.p9{text-align: left;padding-left: 1px;margin-top: 7px;margin-bottom: 0px;}
+.p10{text-align: left;padding-left: 1px;padding-right: 248px;margin-top: 0px;margin-bottom: 0px;}
+.p11{text-align: left;padding-left: 1px;padding-right: 313px;margin-top: 0px;margin-bottom: 0px;}
+.p12{text-align: left;padding-left: 1px;padding-right: 79px;margin-top: 0px;margin-bottom: 0px;}
+.p13{text-align: left;padding-left: 43px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p14{text-align: left;padding-left: 7px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p15{text-align: left;padding-left: 86px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p16{text-align: left;padding-left: 8px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p17{text-align: left;padding-left: 14px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p18{text-align: right;padding-right: 62px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p19{text-align: right;padding-right: 171px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p20{text-align: left;padding-left: 5px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p21{text-align: right;padding-right: 5px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p22{text-align: right;padding-right: 18px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p23{text-align: right;padding-right: 16px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p24{text-align: right;padding-right: 23px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p25{text-align: right;padding-right: 180px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p26{text-align: right;padding-right: 6px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p27{text-align: left;padding-left: 60px;margin-top: 0px;margin-bottom: 0px;}
+.p28{text-align: left;padding-left: 46px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p29{text-align: right;padding-right: 15px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p30{text-align: left;padding-left: 15px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p31{text-align: left;padding-left: 2px;padding-right: 20px;margin-top: 0px;margin-bottom: 0px;}
+.p32{text-align: left;padding-left: 2px;padding-right: 52px;margin-top: 4px;margin-bottom: 0px;}
+.p33{text-align: left;padding-left: 2px;margin-top: 3px;margin-bottom: 0px;}
+.p34{text-align: left;padding-left: 2px;padding-right: 26px;margin-top: 0px;margin-bottom: 0px;}
+.p35{text-align: left;margin-top: 10px;margin-bottom: 0px;}
+.p36{text-align: left;padding-right: 36px;margin-top: 0px;margin-bottom: 0px;}
+.p37{text-align: left;padding-left: 3px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+.p38{text-align: left;padding-left: 4px;margin-top: 0px;margin-bottom: 0px;white-space: nowrap;}
+
+.td0{padding: 0px;margin: 0px;width: 291px;vertical-align: bottom;}
+.td1{padding: 0px;margin: 0px;width: 250px;vertical-align: bottom;}
+.td2{border-left: #000000 1px solid;border-right: #000000 1px solid;border-top: #000000 1px solid;padding: 0px;margin: 0px;width: 207px;vertical-align: bottom;}
+.td3{border-right: #000000 1px solid;border-top: #000000 1px solid;padding: 0px;margin: 0px;width: 35px;vertical-align: bottom;}
+.td4{border-right: #000000 1px solid;border-top: #000000 1px solid;padding: 0px;margin: 0px;width: 341px;vertical-align: bottom;}
+.td5{border-right: #000000 1px solid;border-top: #000000 1px solid;padding: 0px;margin: 0px;width: 82px;vertical-align: bottom;}
+.td6{border-top: #000000 1px solid;padding: 0px;margin: 0px;width: 87px;vertical-align: bottom;}
+.td7{border-right: #000000 1px solid;border-top: #000000 1px solid;padding: 0px;margin: 0px;width: 17px;vertical-align: bottom;}
+.td8{border-left: #000000 1px solid;border-right: #000000 1px solid;padding: 0px;margin: 0px;width: 207px;vertical-align: bottom;}
+.td9{border-right: #000000 1px solid;padding: 0px;margin: 0px;width: 17px;vertical-align: bottom;}
+.td10{border-right: #000000 1px solid;padding: 0px;margin: 0px;width: 35px;vertical-align: bottom;}
+.td11{border-right: #000000 1px solid;padding: 0px;margin: 0px;width: 341px;vertical-align: bottom;}
+.td12{padding: 0px;margin: 0px;width: 57px;vertical-align: bottom;}
+.td13{border-right: #000000 1px solid;padding: 0px;margin: 0px;width: 25px;vertical-align: bottom;}
+.td14{padding: 0px;margin: 0px;width: 87px;vertical-align: bottom;}
+.td15{border-left: #000000 1px solid;border-right: #000000 1px solid;border-bottom: #000000 1px solid;padding: 0px;margin: 0px;width: 207px;vertical-align: bottom;}
+.td16{border-right: #000000 1px solid;border-bottom: #000000 1px solid;padding: 0px;margin: 0px;width: 35px;vertical-align: bottom;}
+.td17{border-right: #000000 1px solid;border-bottom: #000000 1px solid;padding: 0px;margin: 0px;width: 341px;vertical-align: bottom;}
+.td18{border-bottom: #000000 1px solid;padding: 0px;margin: 0px;width: 57px;vertical-align: bottom;}
+.td19{border-right: #000000 1px solid;border-bottom: #000000 1px solid;padding: 0px;margin: 0px;width: 25px;vertical-align: bottom;}
+.td20{border-bottom: #000000 1px solid;padding: 0px;margin: 0px;width: 87px;vertical-align: bottom;}
+.td21{border-right: #000000 1px solid;border-bottom: #000000 1px solid;padding: 0px;margin: 0px;width: 17px;vertical-align: bottom;}
+.td22{padding: 0px;margin: 0px;width: 209px;vertical-align: bottom;}
+.td23{padding: 0px;margin: 0px;width: 36px;vertical-align: bottom;}
+.td24{padding: 0px;margin: 0px;width: 342px;vertical-align: bottom;}
+.td25{padding: 0px;margin: 0px;width: 26px;vertical-align: bottom;}
+.td26{padding: 0px;margin: 0px;width: 18px;vertical-align: bottom;}
+.td27{padding: 0px;margin: 0px;width: 142px;vertical-align: bottom;}
+.td28{padding: 0px;margin: 0px;width: 192px;vertical-align: bottom;}
+.td29{border-bottom: #000000 1px solid;padding: 0px;margin: 0px;width: 192px;vertical-align: bottom;}
+.td30{border-bottom: #000000 1px solid;padding: 0px;margin: 0px;width: 239px;vertical-align: bottom;}
+.td31{border-bottom: #000000 1px solid;padding: 0px;margin: 0px;width: 102px;vertical-align: bottom;}
+.td32{border-bottom: #000000 1px solid;padding: 0px;margin: 0px;width: 55px;vertical-align: bottom;}
+.td33{border-left: #000000 1px solid;border-right: #000000 1px solid;border-top: #000000 1px solid;padding: 0px;margin: 0px;width: 387px;vertical-align: bottom;}
+.td34{border-right: #000000 1px solid;border-top: #000000 1px solid;padding: 0px;margin: 0px;width: 386px;vertical-align: bottom;}
+.td35{border-left: #000000 1px solid;border-right: #000000 1px solid;border-bottom: #000000 1px solid;padding: 0px;margin: 0px;width: 387px;vertical-align: bottom;}
+.td36{border-right: #000000 1px solid;border-bottom: #000000 1px solid;padding: 0px;margin: 0px;width: 386px;vertical-align: bottom;}
+.td37{border-left: #000000 1px solid;border-right: #000000 1px solid;padding: 0px;margin: 0px;width: 387px;vertical-align: bottom;}
+.td38{border-right: #000000 1px solid;padding: 0px;margin: 0px;width: 386px;vertical-align: bottom;}
+
+.tr0{height: 15px;}
+.tr1{height: 32px;}
+.tr2{height: 19px;}
+.tr3{height: 13px;}
+.tr4{height: 28px;}
+.tr5{height: 14px;}
+.tr6{height: 9px;}
+.tr7{height: 5px;}
+.tr8{height: 6px;}
+.tr9{height: 18px;}
+.tr10{height: 16px;}
+.tr11{height: 30px;}
+.tr12{height: 20px;}
+.tr13{height: 3px;}
+.tr14{height: 11px;}
+.tr15{height: 4px;}
+.tr16{height: 12px;}
+
+.t0{width: 541px;margin-left: 23px;font: 12px 'Helvetica';}
+.t1{width: 775px;font: 13px 'Helvetica';}
+.t2{width: 334px;font: 13px 'Helvetica';}
+.t3{width: 396px;margin-top: 6px;font: 12px 'Helvetica';}
+.t4{width: 775px;font: 11px 'Helvetica';}
+
+</style>
+</head>
+
+<body>
+<div id="page_1">
+
+
+<div id="id_2">
+<div id="id_2_1">
+<p class="p0 ft1">Bill of Lading</p>
+</div>
+<div id="id_2_2">
+<p class="p0 ft3"><span data-bind='text: date' class="ft2">Date:</span></p>
+</div>
+</div>
+<div id="id_3">
+<table cellpadding="0" cellspacing="0" class="t0">
+<tbody><tr>
+	<td class="tr0 td0"><p class="p2 ft6">&nbsp;</p></td>
+	<td class="tr0 td1"><p class="p2 ft7">DUBOIS CHEMICALS, INC.</p></td>
+</tr>
+<tr>
+	<td class="tr1 td0"><p class="p2 ft8">SHIP TO / DESTINATAIRE:</p></td>
+	<td class="tr1 td1"><p class="p3 ft8">ORIGIN / EXPEDITEUR:</p></td>
+</tr>
+<tr>
+	<td class="tr2 td0"><p class="p2 ft3" data-bind='text: Name'></p></td>
+	<td class="tr2 td1"><p class="p3 ft9">3630 E Kemper Rd</p></td>
+</tr>
+<tr>
+	<td class="tr0 td0"><p class="p2 ft3" data-bind='text: Line3'></p></td>
+	<td class="tr0 td1"><p class="p3 ft7">Sharonville, OH 45241 2011</p></td>
+</tr>
+<tr>
+	<td class="tr3 td0"><p class="p2 ft10" data-bind='text: numberAndStreet'></p></td>
+	<td class="tr3 td1"><p class="p2 ft11">&nbsp;</p></td>
+</tr>
+<tr>
+	<td class="tr0 td0"><p class="p2 ft3" data-bind='text: cityStateZip'></p></td>
+	<td class="tr0 td1"><p class="p2 ft6">&nbsp;</p></td>
+	<p class="p8 ft3">To contact Customer Service call : 1−800−???-???? ??????????,?????</p>
+
+</tr>
+</tbody></table>
+</div>
+<div id="id_5">
+<table cellpadding="0" cellspacing="0" class="t1">
+<tbody><tr>
+	<td class="tr2 td2"><p class="p13 ft3">NUMBER AND TYPE</p></td>
+	<td rowspan="2" class="tr4 td3"><p class="p14 ft3">HM</p></td>
+	<td rowspan="2" class="tr4 td4"><p class="p15 ft3">DESCRIPTION OF ARTICLES</p></td>
+	<td colspan="2" rowspan="2" class="tr4 td5"><p class="p16 ft3">Net Weight</p></td>
+	<td rowspan="2" class="tr4 td6"><p class="p17 ft20">Gross Weight</p></td>
+	<td class="tr2 td7"><p class="p2 ft6">&nbsp;</p></td>
+</tr>
+<tr>
+	<td rowspan="2" class="tr5 td8"><p class="p18 ft21">OF PACKAGES</p></td>
+	<td class="tr6 td9"><p class="p2 ft22">&nbsp;</p></td>
+</tr>
+<tr>
+	<td class="tr7 td10"><p class="p2 ft23">&nbsp;</p></td>
+	<td class="tr7 td11"><p class="p2 ft23">&nbsp;</p></td>
+	<td class="tr7 td12"><p class="p2 ft23">&nbsp;</p></td>
+	<td class="tr7 td13"><p class="p2 ft23">&nbsp;</p></td>
+	<td class="tr7 td14"><p class="p2 ft23">&nbsp;</p></td>
+	<td class="tr7 td9"><p class="p2 ft23">&nbsp;</p></td>
+</tr>
+<tr>
+	<td class="tr8 td15"><p class="p2 ft24">&nbsp;</p></td>
+	<td class="tr8 td16"><p class="p2 ft24">&nbsp;</p></td>
+	<td class="tr8 td17"><p class="p2 ft24">&nbsp;</p></td>
+	<td class="tr8 td18"><p class="p2 ft24">&nbsp;</p></td>
+	<td class="tr8 td19"><p class="p2 ft24">&nbsp;</p></td>
+	<td class="tr8 td20"><p class="p2 ft24">&nbsp;</p></td>
+	<td class="tr8 td21"><p class="p2 ft24">&nbsp;</p></td>
+</tr>
+</tbody>
+<tbody data-bind = "foreach: items">
+	<tr>
+		<td class='tr8 td22'><p class='p2 ft3' data-bind='text: Qty'>qty</td>
+		<td class='tr8'><p class='p2 ft3' data-bind='text: hm'>hm</td>
+		<td class='tr8'><p class='p2 ft3' data-bind='text: netWeight'>netWeight</td>
+		<td class='tr8'><p class='p2 ft3' data-bind='text: netWeightUnit'>netWeightUnit</td>
+		<td class='tr8'><p class='p2 ft3' data-bind='text: grossWeight'>grossWeight</td>
+		<td class='tr8'><p class='p2 ft3' data-bind='text: grossWeightUnit'>grossWeightUnit</td>
+	</tr>
+</tbody>
+</table>
+
+</div>
+<div id="id_6">
+<div id="id_6_1">
+<table cellpadding="0" cellspacing="0" class="t2">
+<tbody><tr>
+	<td class="tr2 td27"><p class="p2 ft9">Total Piece Count</p></td>
+	<td class="tr2 td28"><p class="p25 ft9">7</p></td>
+</tr>
+<tr>
+	<td class="tr10 td27"><p class="p2 ft9">Freight loaded on</p></td>
+	<td class="tr10 td28"><p class="p26 ft9">pallets</p></td>
+</tr>
+<tr>
+	<td class="tr0 td27"><p class="p2 ft3">Placards offered to driver</p></td>
+	<td class="tr5 td29"><p class="p2 ft26">&nbsp;</p></td>
+</tr>
+</tbody></table>
+</div>
+<div id="id_6_2">
+<p class="p27 ft25">TOTAL COD AMOUNT:</p>
+<table cellpadding="0" cellspacing="0" class="t3">
+<tbody><tr>
+	<td class="tr12 td30"><p class="p28 ft25">TOTAL GROSS WEIGHT:</p></td>
+	<td class="tr12 td31"><p class="p29 ft9">2,656.10</p></td>
+	<td class="tr12 td32"><p class="p30 ft3">LB</p></td>
+</tr>
+</tbody></table>
+</div>
+</div>
+<div id="id_7">
+<p class="p6 ft27">Shipper's imprint in lieu of stamps, not a part of bill of lading approved by the Interstate Commerce Commission.</p>
+<p class="p31 ft28">RECEIVED, subject to individually determinated rates or contracts that have been agreed upon in writing between the carrier and shipper, if applicable, otherwise to the rates, classifications and rules that have been established by the carrier and are available to the shipper, on request; and all applicable state and federal regulations; the Property described below, in apparent good order, except as noted (contents and condition of contents of packages unknown), marked, consigned, and destined as indicated below which said company (the word company being understood throughout this contract as meaning any person or corporation in possession of the property under the contract) agrees to carry to delivery at said destination. If on its route, or otherwise to deliver to another carrier on the route to said destination. It is mutually agreed as to each carrier of all or any of said Property over all or any portion of said route to destination and as to each party at any time interests in all or any of said Property that every service to be performed hereunder shall be subject to all the conditions not prohibited by law, whether printed or written, herein contained, including the conditions on the back hereof, which are hereby agreed to by the shipper and accepted for himself and his assigns.</p>
+<p class="p32 ft27">Subject to Section 7 of conditions, if this shipment is to be delivered to the consignee without recourse on the consignor, the consignor shall sign the following statement: The carrier shall not make delivery of this shipment without payment of freight and all other lawful changes.</p>
+<p class="p33 ft28">If the shipment moves between two ports by a carrier by water the law requires that the bill of lading shall state whether it is "carrier's or shipper's weight."</p>
+<p class="p31 ft27">NOTE: Where the rate is dependent on value, shippers are required to state specifically in writing the agreed or declared value of the property. The agreed or declared value of the property is hereby specifically stated by the shipper to be not exceeding $ PER:</p>
+<p class="p33 ft28">SHIPPER CERTIFICATION:</p>
+<p class="p34 ft27">This is to certify that the herein−named materials are properly classified, described, packaged, marked and labeled, and are in proper condition for transportation according to the applicable regulations of the Department of Transportation PER: <img src="/images/sig.png" id="inl_img1"></p>
+<p class="p35 ft28">CARRIER CERTIFICATION:</p>
+<p class="p36 ft28">By signing this BOL, I certify to DuBois Chemicals, Inc. that I posses a copy of the NA Emergency Response Guidebook to satisfy the requirements of US DOT 49FR 172.600 and 172.602. I understand the guidebook must be in my possession at all times during the transport of the hazardous materials listed on this shipping document and the guidebook must be available.</p>
+<table cellpadding="0" cellspacing="0" class="t4">
+<tbody><tr>
+	<td class="tr3 td33"><p class="p20 ft29">SHIPPER: DuBois Chemicals, Inc.</p></td>
+	<td class="tr3 td34"><p class="p37 ft29">CARRIER: SAIA MOTOR FREIGHT LINES</p></td>
+</tr>
+<tr>
+	<td class="tr13 td35"><p class="p2 ft30">&nbsp;</p></td>
+	<td class="tr13 td36"><p class="p2 ft30">&nbsp;</p></td>
+</tr>
+<tr>
+	<td class="tr14 td37"><p class="p38 ft31">PER: DuBois Chemicals, Inc.</p></td>
+	<td class="tr14 td38"><p class="p37 ft31">PER:</p></td>
+</tr>
+<tr>
+	<td class="tr15 td35"><p class="p2 ft32">&nbsp;</p></td>
+	<td class="tr15 td36"><p class="p2 ft32">&nbsp;</p></td>
+</tr>
+<tr>
+	<td class="tr16 td37"><p class="p2 ft33">&nbsp;</p></td>
+	<td class="tr16 td38"><p class="p37 ft19">DATE:</p></td>
+</tr>
+<tr>
+	<td class="tr13 td35"><p class="p2 ft30">&nbsp;</p></td>
+	<td class="tr13 td36"><p class="p2 ft30">&nbsp;</p></td>
+</tr>
+</tbody></table>
+</div>
+<div id="id_8">
+<p class="p0 ft8">CHEMTREC 24−Hour Emergency Number: 1−800−424−9300 − DuBois Chemicals, Inc and affiliates CCN#228167</p>
+</div>
+</div>
+</body></html>

@@ -3,7 +3,7 @@ var router = express.Router();
 var util = require('util');
 var $ = require('jquery');
 
-router.get('/', function(req,res,next){
+/*router.get('/', function(req,res,next){
 	console.log('serving /');
 	if(!res.locals.partials){
 		res.locals.partials = {};
@@ -22,7 +22,18 @@ router.get('/', function(req,res,next){
 			console.log('Error while running sql in outbound : ' + err);
 		});
 	});
+});*/
+
+router.get('/', function(req, res, next){
+	res.render('outbound');
 });
 
-
+router.get('/:id', function(req, res,next){
+	try{
+		var outboundID = req.params.id;
+		res.render('outboundTruck',{outboundID});
+	}catch(err){
+		console.log(err);
+	}
+});
 module.exports = router;

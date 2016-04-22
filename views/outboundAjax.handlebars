@@ -45,7 +45,7 @@
 			
 		};
 	var getDataFromServer = function(){
-			$.getJSON("http://10.109.10.232:3000/api/outboundTrucks",function(data){
+			$.getJSON("http://10.109.10.232:3000/api/outboundTruck/{{outboundid}}",function(data){
 				truckModel.trucks(data);	
 			});
 	};

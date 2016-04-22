@@ -1,7 +1,123 @@
-<div class="bloc l-bloc bgc-white" id="services">
-    <div class="container bloc-lg">
-        <div class="row">
-		{{> outboundPart}}
-        </div>
-    </div>
+<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js'></script>
+{{#section 'head'}}
+	<script type="text/javascript">
+		var truckModel;
+		function Truck(OutboundID,TruckWHID,FromWHID,DriverID,Description)
+		{
+			this.OutboundID = ko.observable(OutboundID);//used to do updates PK
+			this.TruckWHID = ko.observable(TruckWHID);
+			this.FromWHID = ko.observable(FromWHID);
+			this.Description = ko.obeservable(Description);
+			this.DriverID = ko.observable(DriverID);
+		};
+		
+		var TruckModel = function(trucks){
+			var self = this;
+			self.trucks = ko.observableArray(
+				ko.utils.arrayMap(
+					trucks, function(truck){
+						return new Truck
+							(
+								truck.OutboundID,
+								truck.TruckWHID, 
+								truck.FromWHID, 
+								truck.Description,
+								truck.DriverID
+							);
+					}	
+				)
+			);
+			self.doDelete = function(data,num){
+				$.ajax({	
+					type		:'delete',
+					url		:'../api/outboundTruck/'+data.OutboundID,
+					processData	:false					
+				})
+				.done(function(data){
+					getDataFromServer();
+				})
+			};
+			self.gotoTruck = function(data){
+				window.location.href = '/outbound/' + data.OutboundID;
+			};
+		};
+	var getDataFromServer = function(){
+			$.getJSON("http://10.109.10.232:3000/api/outboundTrucks",function(data){
+				truckModel.trucks(data);	
+			});
+	};
+	
+
+	$(document).ready(function(){
+		$('#refreshdata').click(function(){
+			getDataFromServer();
+			
+		});
+		$('#frmOutboundTruck').submit(function(event){
+		 	var data = {}
+			var Form = this;	
+			$.each(this.elements, function(i, v){
+				var input = $(v);
+				data[input.attr("name")] = input.val();
+				delete data["undefined"];
+				input.val('');
+		    	});
+
+			$.ajax({
+				contentType:'application/json',
+				type	:	'POST',
+				url	:	'../api/outbound',
+				data	:	JSON.stringify(data),
+				processData: false
+			})
+			.done(function(data){
+				console.log(data);
+				getDataFromServer();
+			});
+			event.preventDefault();
+		});
+		//apply bindings to a new, empty, TruckModel
+		truckModel = new TruckModel();
+		ko.applyBindings(truckModel);
+		getDataFromServer();
+		$('.navTd').click(function(){
+			window.location.href='/outboundAjax';
+		});
+	});
+	</script>
+{{/section}}
+<div class= 'container'>
+	<h2>Trucks:</h2>
+	<table class='table table-hover'>
+		<thead>
+			<tr>
+				<th>Truck Warehouse ID:</th>
+				<th>From Warehouse ID:</th>
+				<th>Description:</th>
+				<th>Driver ID:</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody data-bind = 'foreach: trucks'>
+			<tr >
+				<td data-bind='text: TruckWHID, click:function(){truckModel.gotoTruck($data);}'</td>
+				<td data-bind='text: FromWHID, click:function(){truckModel.gotoTruck($data);}'></td>
+				<td data-bind='text: Description, click:function(){truckModel.gotoTruck($data);}'></td>
+				<td data-bind='text: DriverID, click:function(){truckModel.gotoTruck($data);}'></td>
+				<td><button class="btnTruckDelete" data-bind='click: function(){truckModel.doDelete($data,42);}' >X</button></td>
+			</tr>
+			
+		</tbody>
+		<tbody class='editTruck'>
+			<tr>
+				<form id='frmOutboundTruck'>
+					<td><input  name='TruckWHID'/></td>
+					<td ><input name='FromWHID'/ ></td>
+					<td><input name='Description'/></td>
+					<td><input name='DriverID'/></td>
+					<td><button class="btnTruckSave">Save</button></td>
+				</form>
+			</tr>
+		</tbody>
+	</table>
 </div>
